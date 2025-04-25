@@ -49,22 +49,22 @@ public class User {
         this.email = email;
     }
 
-    @Id // Marks this field as the primary identifier (_id in MongoDB)
-    private String id; // MongoDB typically uses String ObjectIds by default. Let's switch.
+    @Id
+    private String id;
 
     @NotBlank
     @Size(max = 50)
-    @Indexed(unique = true) // Create a unique index for username
+    @Indexed(unique = true)
     private String username;
 
     @NotBlank
     @Size(max = 120)
-    private String password; // Keep storing the hashed password
+    private String password;
 
     @NotBlank
     @Size(max = 50)
     @Email
-    @Indexed(unique = true) // Create a unique index for email
+    @Indexed(unique = true)
     private String email;
 
 

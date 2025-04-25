@@ -14,7 +14,7 @@ import java.util.Objects;
 public class UserDetailsImpl implements UserDetails {
     private static final long serialVersionUID = 1L;
 
-    private String id; // <-- Changed to String
+    private String id;
     private String username;
     private String email;
     @JsonIgnore
@@ -22,7 +22,7 @@ public class UserDetailsImpl implements UserDetails {
 
     private Collection<? extends GrantedAuthority> authorities;
 
-    // Constructor updated for String ID
+
     public UserDetailsImpl(String id, String username, String email, String password,
                            Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
@@ -32,10 +32,10 @@ public class UserDetailsImpl implements UserDetails {
         this.authorities = authorities;
     }
 
-    // Build method updated for String ID
+
     public static UserDetailsImpl build(User user) {
         List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
-        // Assuming user.getId() now returns String from the User entity
+
         return new UserDetailsImpl(
                 user.getId(),
                 user.getUsername(),
@@ -49,7 +49,6 @@ public class UserDetailsImpl implements UserDetails {
         return authorities;
     }
 
-    // Getter updated for String ID
     public String getId() {
         return id;
     }
@@ -68,7 +67,6 @@ public class UserDetailsImpl implements UserDetails {
         return username;
     }
 
-    // --- Account status methods ---
     @Override public boolean isAccountNonExpired() { return true; }
     @Override public boolean isAccountNonLocked() { return true; }
     @Override public boolean isCredentialsNonExpired() { return true; }

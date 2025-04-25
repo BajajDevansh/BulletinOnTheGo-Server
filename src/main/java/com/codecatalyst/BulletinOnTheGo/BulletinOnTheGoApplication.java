@@ -13,7 +13,6 @@ import org.springframework.context.annotation.ComponentScan;
 public class BulletinOnTheGoApplication {
 	private static final Logger log=LoggerFactory.getLogger(BulletinOnTheGoApplication.class);
 	public static void main(String[] args) {
-		log.trace(">>>>>>>>>>Application log test<<<<<<<<<");
 		SpringApplication.run(BulletinOnTheGoApplication.class, args);
 	}
 

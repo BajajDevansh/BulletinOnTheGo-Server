@@ -12,7 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Data
 public class EmergencyContact {
     @Id
-    private String id; // Switch to String ID
+    private String id;
 
     public @NotBlank String getUserId() {
         return userId;
@@ -22,10 +22,9 @@ public class EmergencyContact {
         this.userId = userId;
     }
 
-    // Store the User's ID directly. Index for efficient lookups.
     @Indexed
-    @NotBlank // Add constraint if applicable
-    private String userId; // Match User ID type (now String)
+    @NotBlank
+    private String userId;
 
     @NotBlank
     private String name;

@@ -1,6 +1,6 @@
 package com.codecatalyst.BulletinOnTheGo.dto;
 
-import lombok.AllArgsConstructor;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

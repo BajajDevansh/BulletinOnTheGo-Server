@@ -3,16 +3,15 @@ package com.codecatalyst.BulletinOnTheGo.service;
 import com.codecatalyst.BulletinOnTheGo.entity.NewsArticle;
 import com.codecatalyst.BulletinOnTheGo.repositories.NewsArticleRepository;
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service // Automatically creates constructor for final fields
+@Service
 public class NewsService {
 
     private final NewsArticleRepository newsArticleRepository;
-    // No explicit constructor needed with @RequiredArgsConstructor
+
     public NewsService(NewsArticleRepository newsArticleRepository){
         this.newsArticleRepository=newsArticleRepository;
     }
@@ -21,8 +20,6 @@ public class NewsService {
         return newsArticleRepository.findByOrderByPublishedDateDesc();
     }
 
-    // This PostConstruct will now insert into MongoDB if the collection is empty
-    // Note: This runs every time the application starts. Consider if this is desired.
     @PostConstruct
     public void initDummyData() {
         if (newsArticleRepository.count() == 0) {

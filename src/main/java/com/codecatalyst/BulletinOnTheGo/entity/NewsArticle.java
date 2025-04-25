@@ -13,10 +13,10 @@ import java.time.LocalDateTime;
 @Data
 public class NewsArticle {
     @Id
-    private String id; // Switch to String ID
+    private String id;
 
     private String title;
-    private String content; // No need for @Lob or @Column
+    private String content;
     private String source;
     private LocalDateTime publishedDate;
 
