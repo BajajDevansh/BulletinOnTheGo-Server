@@ -1,23 +1,36 @@
 package com.codecatalyst.BulletinOnTheGo.entity;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@Entity
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document(collection = "emergency_contacts")
 @Data
 public class EmergencyContact {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id; // Switch to String ID
 
-    // ****** ADDED: Link to User ******
-    @ManyToOne(fetch = FetchType.LAZY) // Lazy fetch is generally good practice
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    public @NotBlank String getUserId() {
+        return userId;
+    }
 
+    public void setUserId(@NotBlank String userId) {
+        this.userId = userId;
+    }
+
+    // Store the User's ID directly. Index for efficient lookups.
+    @Indexed
+    @NotBlank // Add constraint if applicable
+    private String userId; // Match User ID type (now String)
+
+    @NotBlank
     private String name;
+
+    @NotBlank
     private String phoneNumber;
 
     public String getPhoneNumber() {
@@ -36,26 +49,20 @@ public class EmergencyContact {
         this.name = name;
     }
 
-    public User getUser() {
-        return user;
-    }
 
-    public void setUser(User user) {
-        this.user = user;
-    }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public EmergencyContact(String name, String phoneNumber, User user) {
+    public EmergencyContact(String name, String phoneNumber, String userId) {
         this.name = name;
         this.phoneNumber = phoneNumber;
-        this.user = user;
+        this.userId=userId;
     }
 
     public EmergencyContact(){}

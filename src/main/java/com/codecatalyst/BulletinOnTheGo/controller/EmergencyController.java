@@ -3,50 +3,53 @@ package com.codecatalyst.BulletinOnTheGo.controller;
 import com.codecatalyst.BulletinOnTheGo.dto.EmergencyContactDTO;
 import com.codecatalyst.BulletinOnTheGo.dto.SendAlertRequest;
 import com.codecatalyst.BulletinOnTheGo.dto.message.MessageResponse;
+import com.codecatalyst.BulletinOnTheGo.exception.ResourceNotFoundException;
 import com.codecatalyst.BulletinOnTheGo.security.UserDetailsImpl;
 import com.codecatalyst.BulletinOnTheGo.service.EmergencyService;
-import jakarta.persistence.EntityNotFoundException;
+
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 
 @RestController
 @RequestMapping("/api/emergency")
-@CrossOrigin(origins = "http://localhost:3000", maxAge = 3600) // Adjust CORS as needed
+ @CrossOrigin(origins = "http://localhost:3000", maxAge = 3600) // Prefer global CORS config
 public class EmergencyController {
-
+    private final Logger log= LoggerFactory.getLogger(EmergencyController.class);
     private final EmergencyService emergencyService;
-
-    @Autowired // Optional on single constructor in recent Spring versions
-    public EmergencyController(EmergencyService emergencyService) {
-        this.emergencyService = emergencyService; // Initialize here
+    // No explicit constructor needed
+    public EmergencyController(EmergencyService emergencyService){
+        this.emergencyService=emergencyService;
     }
-
-    // Helper method to get current user's ID
-    private Long getCurrentUserId() {
+    // Helper method to get current user's ID (now returns String)
+    private String getCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() || !(authentication.getPrincipal() instanceof UserDetailsImpl)) {
-            throw new SecurityException("User not authenticated"); // Or handle differently
+            // Consider throwing a more specific Spring Security exception if appropriate
+            throw new SecurityException("User not authenticated");
         }
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        return userDetails.getId();
+        return userDetails.getId(); // Returns String ID
     }
 
     @PostMapping("/send")
-    @PreAuthorize("isAuthenticated()") // Ensure user is logged in
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> sendAlert(@RequestBody SendAlertRequest request) {
-        Long userId = getCurrentUserId();
+        String userId = getCurrentUserId(); // Get String ID
         boolean success = emergencyService.sendEmergencyAlert(userId, request.getMessage(), request.getLocation());
         if (success) {
             return ResponseEntity.ok(new MessageResponse("Alert triggered successfully (simulated)"));
         } else {
-            // Be cautious about revealing *why* it failed (e.g., no contacts vs. system error)
             return ResponseEntity.status(500).body(new MessageResponse("Failed to trigger alert. Ensure contacts are configured."));
         }
     }
@@ -54,37 +57,54 @@ public class EmergencyController {
     @GetMapping("/contacts")
     @PreAuthorize("isAuthenticated()")
     public List<EmergencyContactDTO> getContacts() {
-        Long userId = getCurrentUserId();
+        String userId = getCurrentUserId(); // Get String ID
         return emergencyService.getContactsForUser(userId);
     }
 
     @PostMapping("/contacts")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<EmergencyContactDTO> addContact(@RequestBody EmergencyContactDTO contactDTO) {
-        Long userId = getCurrentUserId();
-        // Basic validation (could use @Valid on DTO)
+    public ResponseEntity<?> addContact(@RequestBody EmergencyContactDTO contactDTO) { // Changed return to ResponseEntity<?> for consistency
+        String userId = getCurrentUserId(); // Get String ID
+        // Basic validation
         if (contactDTO.getName() == null || contactDTO.getName().isBlank() ||
                 contactDTO.getPhoneNumber() == null || contactDTO.getPhoneNumber().isBlank()) {
-            return ResponseEntity.badRequest().build(); // Consider MessageResponse here too
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: Name and Phone Number are required."));
         }
-        EmergencyContactDTO newContact = emergencyService.addContactForUser(userId, contactDTO);
-        return ResponseEntity.ok(newContact);
+        try {
+            EmergencyContactDTO newContact = emergencyService.addContactForUser(userId, contactDTO);
+            return ResponseEntity.ok(newContact);
+        } catch (UsernameNotFoundException e) { // Catch if user doesn't exist from service
+            return ResponseEntity.status(404).body(new MessageResponse(e.getMessage()));
+        } catch (Exception e) {
+            // Log the exception e.printStackTrace(); or log.error("...", e);
+            return ResponseEntity.status(500).body(new MessageResponse("Error adding contact."));
+        }
     }
 
-    // Example: Add Delete Endpoint
     @DeleteMapping("/contacts/{contactId}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> deleteContact(@PathVariable Long contactId) {
-        Long userId = getCurrentUserId();
+    public ResponseEntity<?> deleteContact(@PathVariable String contactId) {
+        String userId = getCurrentUserId();
         try {
             emergencyService.deleteContactForUser(userId, contactId);
+            log.info("Successfully deleted contact {} for user {}", contactId, userId); // Added success log
             return ResponseEntity.ok(new MessageResponse("Contact deleted successfully."));
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(404).body(new MessageResponse("Error: Contact not found."));
-        } catch (SecurityException e) {
-            return ResponseEntity.status(403).body(new MessageResponse("Error: Forbidden."));
-        } catch (Exception e) { // Catch broader exceptions if necessary
-            return ResponseEntity.status(500).body(new MessageResponse("Error: Could not delete contact."));
+
+        } catch (ResourceNotFoundException e) { // <<< CATCH ResourceNotFoundException
+            log.warn("Attempt to delete non-existent contact {} for user {}: {}", contactId, userId, e.getMessage()); // Log the warning
+            // Use HttpStatus.NOT_FOUND for clarity
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MessageResponse("Error: Contact not found."));
+
+        } catch (SecurityException e) { // Catch the specific exception from the service
+            log.warn("Forbidden attempt by user {} to delete contact {}: {}", userId, contactId, e.getMessage()); // Log the warning
+            // Use HttpStatus.FORBIDDEN for clarity
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new MessageResponse("Error: Forbidden."));
+
+        } catch (Exception e) { // Catch unexpected errors
+            // Log the full stack trace for unexpected errors at ERROR level
+            log.error("Unexpected error deleting contact {} for user {}", contactId, userId, e);
+            // Use HttpStatus.INTERNAL_SERVER_ERROR
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new MessageResponse("Error: Could not delete contact due to an internal server error."));
         }
     }
 }

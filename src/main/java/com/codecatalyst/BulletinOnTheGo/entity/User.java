@@ -1,31 +1,27 @@
 package com.codecatalyst.BulletinOnTheGo.entity;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.persistence.*;
+
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
-@Table(name = "users", // Use plural for table name often
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = "username"),
-                @UniqueConstraint(columnNames = "email")
-        })
+
+@Document(collection = "users")
 @Data
 public class User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
-    public Long getId() {
+
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -53,25 +49,25 @@ public class User {
         this.email = email;
     }
 
+    @Id // Marks this field as the primary identifier (_id in MongoDB)
+    private String id; // MongoDB typically uses String ObjectIds by default. Let's switch.
+
     @NotBlank
     @Size(max = 50)
+    @Indexed(unique = true) // Create a unique index for username
     private String username;
 
     @NotBlank
     @Size(max = 120)
-    // Store hashed password
-    private String password;
+    private String password; // Keep storing the hashed password
 
     @NotBlank
     @Size(max = 50)
     @Email
+    @Indexed(unique = true) // Create a unique index for email
     private String email;
 
-    // Basic role setup (optional for now, can be expanded)
-    // If you add roles, you'll need a Role entity and ManyToMany mapping
-    // @ManyToMany(fetch = FetchType.LAZY)
-    // @JoinTable(name = "user_roles", /* join columns config */)
-    // private Set<Role> roles = new HashSet<>();
+
 
     public User(String username, String email, String password) {
         this.username = username;

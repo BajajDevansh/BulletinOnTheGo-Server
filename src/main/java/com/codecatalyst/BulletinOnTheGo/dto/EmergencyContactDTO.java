@@ -8,20 +8,20 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 
 public class EmergencyContactDTO {
-    private Long id;
+    private String id;
     private String name;
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public EmergencyContactDTO(Long id, String name, String phoneNumber) {
+    public EmergencyContactDTO(String id, String name, String phoneNumber) {
         this.id = id;
         this.name = name;
         this.phoneNumber = phoneNumber;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

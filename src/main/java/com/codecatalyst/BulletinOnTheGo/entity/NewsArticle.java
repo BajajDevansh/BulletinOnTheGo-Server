@@ -1,24 +1,24 @@
 package com.codecatalyst.BulletinOnTheGo.entity;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.persistence.*;
+
+
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.time.LocalDateTime;
 
 
-@Entity
+@Document(collection = "news_article")
 @Data
 public class NewsArticle {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id; // Switch to String ID
 
     private String title;
-    @Lob // Use Lob for potentially long text
-    @Column(columnDefinition = "TEXT")
-    private String content;
+    private String content; // No need for @Lob or @Column
     private String source;
-    private java.time.LocalDateTime publishedDate;
+    private LocalDateTime publishedDate;
 
     public NewsArticle(String title, String content, String source) {
         this.title = title;

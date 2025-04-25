@@ -13,6 +13,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -20,7 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
-@EnableMethodSecurity(prePostEnabled = true) // Enable method-level security like @PreAuthorize
+@EnableMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig {
 
     @Autowired
@@ -49,30 +50,27 @@ public class WebSecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // Use BCrypt
+        return NoOpPasswordEncoder.getInstance();
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.cors(withDefaults()).csrf(csrf -> csrf.disable()) // Disable CSRF for stateless JWT API
+        http.cors(withDefaults()).csrf(csrf -> csrf.disable())
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Stateless session
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth ->
-                        auth.requestMatchers("/api/auth/**").permitAll()       // Allow auth endpoints
-                                .requestMatchers("/api/news/**").permitAll()       // Allow news endpoints
-                                .requestMatchers("/h2-console/**").permitAll() // Allow H2 console (for dev)
-                                // .requestMatchers("/api/emergency/**").authenticated() // Secure emergency endpoints
-                                // OR more fine-grained control:
-                                // .requestMatchers(HttpMethod.GET, "/api/emergency/contacts").hasRole("USER") // Example role
-                                .anyRequest().authenticated()                // All other requests need authentication
+                        auth.requestMatchers("/api/auth/**").permitAll()
+                                .requestMatchers("/api/news/**").permitAll()
+                                .requestMatchers("/h2-console/**").permitAll()
+
+                                .anyRequest().authenticated()
                 );
 
-        // Allow H2 console frame rendering
         http.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()));
 
         http.authenticationProvider(authenticationProvider());
 
-        // Add our custom JWT filter before the standard UsernamePasswordAuthenticationFilter
+
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

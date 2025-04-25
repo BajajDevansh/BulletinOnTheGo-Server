@@ -4,10 +4,10 @@ import com.codecatalyst.BulletinOnTheGo.security.UserDetailsImpl;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.security.SignatureException; // Correct import
+import io.jsonwebtoken.security.SignatureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +19,7 @@ public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
 
-    private String jwtSecret="VSw7lcVTGArB5P8eE+7DQGQ/h9ZXhHOzHbPo7lkH1V2k8EZTV4/80Dic3LY5NXs4H0CAYBl3k1Aq\n" +
+    private String jwtSecret="VSw7lcVTGArB5P8eE+7DQGQ/h9ZXhHOzHbPo7lkH1V2k8EZTV4/80Dic3LY5NXs4H0CAYBl3k1Aq" +
             "4faA4mbmEQ==";
 
 
@@ -36,7 +36,7 @@ public class JwtUtils {
                 .setSubject((userPrincipal.getUsername()))
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
-                .signWith(key(), SignatureAlgorithm.HS512) // Use HS512
+                .signWith(key(), SignatureAlgorithm.HS512)
                 .compact();
     }
 
@@ -48,9 +48,9 @@ public class JwtUtils {
     public boolean validateJwtToken(String authToken) {
         try {
             Jwts.parser()
-                    .verifyWith(key()) // key() returns your SecretKey or PublicKey
+                    .verifyWith(key())
                     .build()
-                    .parseSignedClaims(authToken); // Use parseSignedClaims instead of just parse
+                    .parseSignedClaims(authToken);
 
             return true;
         } catch (SignatureException e) {

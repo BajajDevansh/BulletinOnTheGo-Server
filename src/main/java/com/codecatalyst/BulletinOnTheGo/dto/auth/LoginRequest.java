@@ -2,13 +2,13 @@ package com.codecatalyst.BulletinOnTheGo.dto.auth;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
-@Data // This annotation generates getters, setters, toString, etc.
+@Data
 public class LoginRequest {
     @NotBlank
-    private String username; // Field is named 'username'
+    private String username;
 
     @NotBlank
-    private String password; // Field is named 'password'
+    private String password;
 
     public @NotBlank String getUsername() {
         return username;

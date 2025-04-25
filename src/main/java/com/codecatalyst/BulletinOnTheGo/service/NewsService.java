@@ -8,10 +8,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
+@Service // Automatically creates constructor for final fields
 public class NewsService {
 
     private final NewsArticleRepository newsArticleRepository;
+    // No explicit constructor needed with @RequiredArgsConstructor
     public NewsService(NewsArticleRepository newsArticleRepository){
         this.newsArticleRepository=newsArticleRepository;
     }
@@ -19,6 +20,9 @@ public class NewsService {
     public List<NewsArticle> getLatestNews() {
         return newsArticleRepository.findByOrderByPublishedDateDesc();
     }
+
+    // This PostConstruct will now insert into MongoDB if the collection is empty
+    // Note: This runs every time the application starts. Consider if this is desired.
     @PostConstruct
     public void initDummyData() {
         if (newsArticleRepository.count() == 0) {

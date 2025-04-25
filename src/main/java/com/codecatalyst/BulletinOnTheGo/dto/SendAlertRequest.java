@@ -4,9 +4,8 @@ import lombok.Data;
 
 @Data
 public class SendAlertRequest {
-    // private Long userId; // Needed in a multi-user system
-    private String message; // Optional custom message
-    private String location; // Optional: "latitude,longitude" or address string
+    private String message;
+    private String location;
 
     public String getMessage() {
         return message;

@@ -1,23 +1,18 @@
 package com.codecatalyst.BulletinOnTheGo.dto.auth;
 
+
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.util.List;
 
 @Data
 public class JwtResponse {
     private String token;
     private String type = "Bearer";
-    private Long id;
+    private String id; // <-- Changed to String
     private String username;
     private String email;
     // private List<String> roles; // Add if implementing roles
-
-    public JwtResponse(String accessToken, Long id, String username, String email/*, List<String> roles*/) {
-        this.token = accessToken;
-        this.id = id;
-        this.username = username;
-        this.email = email;
-        // this.roles = roles;
-    }
 
     public String getToken() {
         return token;
@@ -35,11 +30,8 @@ public class JwtResponse {
         this.type = type;
     }
 
-    public Long getId() {
-        return id;
-    }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -58,4 +50,14 @@ public class JwtResponse {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    // Constructor updated for String ID
+    public JwtResponse(String accessToken, String id, String username, String email/*, List<String> roles*/) {
+        this.token = accessToken;
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        // this.roles = roles;
+    }
+    public JwtResponse(){}
 }

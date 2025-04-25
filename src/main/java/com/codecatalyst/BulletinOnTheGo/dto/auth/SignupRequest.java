@@ -40,7 +40,7 @@ public class SignupRequest {
     private String email;
 
     @NotBlank
-    @Size(min = 6, max = 120) // Enforce password length
+    @Size(min = 6, max = 120)
     private String password;
 
 }
