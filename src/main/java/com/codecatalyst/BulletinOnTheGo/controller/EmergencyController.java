@@ -23,7 +23,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/emergency")
- @CrossOrigin(origins = "http://localhost:3000", maxAge = 3600) // Prefer global CORS config
+// @CrossOrigin(origins = "http://localhost:3000", maxAge = 3600) // Prefer global CORS config
 public class EmergencyController {
     private final Logger log= LoggerFactory.getLogger(EmergencyController.class);
     private final EmergencyService emergencyService;
@@ -43,7 +43,6 @@ public class EmergencyController {
     }
 
     @PostMapping("/send")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> sendAlert(@RequestBody SendAlertRequest request) {
         String userId = getCurrentUserId(); // Get String ID
         boolean success = emergencyService.sendEmergencyAlert(userId, request.getMessage(), request.getLocation());

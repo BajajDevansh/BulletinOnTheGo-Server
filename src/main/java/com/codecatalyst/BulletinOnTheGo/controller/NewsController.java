@@ -12,7 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/news")
-@CrossOrigin(origins = "http://localhost:3000") // Prefer global CORS config via CorsConfig bean
+//@CrossOrigin(origins = "http://localhost:3000") // Prefer global CORS config via CorsConfig bean
 public class NewsController {
 
     private final NewsService newsService;

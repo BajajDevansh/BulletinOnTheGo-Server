@@ -20,7 +20,7 @@ public class JwtUtils {
 
 
     private String jwtSecret="VSw7lcVTGArB5P8eE+7DQGQ/h9ZXhHOzHbPo7lkH1V2k8EZTV4/80Dic3LY5NXs4H0CAYBl3k1Aq" +
-            "4faA4mbmEQ==";
+            "VSw7lcVTGArB5P8eE+7DQGQ/h9ZXhHOzHbPo7lkH1V2k8EZTV4/80Dic3LY5NXs4H0CAYBl3k1Aq";
 
 
     private int jwtExpirationMs=3600000;
